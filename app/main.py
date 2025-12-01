@@ -3,15 +3,16 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api import operators, sources, leads, contacts
 from app.database import engine, Base
 
+# Создаем таблицы
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
-    title="Lead Distribution Service",
-    description="Сервис распределения лидов между операторами",
+    title="Test",
+    description="!",
     version="1.0.0"
 )
 
-
+# Настройка CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -20,7 +21,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
+# Подключаем роутеры
 app.include_router(operators.router)
 app.include_router(sources.router)
 app.include_router(leads.router)
