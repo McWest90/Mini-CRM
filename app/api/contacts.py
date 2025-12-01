@@ -1,7 +1,8 @@
-from typing import List
+from typing import List, Optional
 from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from sqlalchemy import case
 from app import crud, schemas, models
 from app.database import get_db
 from app.services.distribution import DistributionService
@@ -24,8 +25,10 @@ def create_contact(
     4. Создать запись об обращении
     """
     
+    # Находим или создаем лида
     lead = crud.get_lead_by_external_id(db, contact.external_lead_id)
     if not lead:
+        # Создаем нового лида
         lead_data = schemas.LeadCreate(
             external_id=contact.external_lead_id,
             phone=contact.phone,
@@ -35,10 +38,12 @@ def create_contact(
         )
         lead = crud.create_lead(db, lead_data)
     
+    # Находим источник
     source = crud.get_source_by_code(db, contact.source_code)
     if not source:
         raise HTTPException(status_code=404, detail="Source not found")
     
+    # Распределяем обращение
     distributed_contact = DistributionService.distribute_contact(
         db=db,
         lead_id=lead.id,
@@ -47,7 +52,7 @@ def create_contact(
     )
     
     if not distributed_contact:
-        
+        # Создаем обращение без оператора, если нет доступных
         distributed_contact = models.Contact(
             lead_id=lead.id,
             source_id=source.id,
@@ -58,6 +63,7 @@ def create_contact(
         db.commit()
         db.refresh(distributed_contact)
     
+    # Получаем оператора, если назначен
     operator = None
     if distributed_contact.operator_id:
         operator = crud.get_operator(db, distributed_contact.operator_id)

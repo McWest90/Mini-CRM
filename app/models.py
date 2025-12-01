@@ -15,11 +15,11 @@ class Operator(Base):
     name = Column(String, nullable=False)
     email = Column(String, unique=True, nullable=False)
     is_active = Column(Boolean, default=True)
-    max_load = Column(Integer, default=10)  # Максимальное количество активных лидов
+    max_load = Column(Integer, default=10)
     
-    # Связь с источниками через веса
+    
     source_weights = relationship("OperatorSourceWeight", back_populates="operator", cascade="all, delete-orphan")
-    # Обращения, назначенные оператору
+    
     contacts = relationship("Contact", back_populates="operator")
     
     created_at = Column(DateTime(timezone=True), server_default=func.now())
@@ -31,13 +31,13 @@ class Lead(Base):
     __tablename__ = "leads"
     
     id = Column(Integer, primary_key=True, index=True)
-    external_id = Column(String, unique=True, nullable=False)  # Уникальный идентификатор (телефон, email и т.д.)
+    external_id = Column(String, unique=True, nullable=False)
     phone = Column(String, nullable=False)
     email = Column(String)
     first_name = Column(String)
     last_name = Column(String)
     
-    # Все обращения лида
+    
     contacts = relationship("Contact", back_populates="lead", cascade="all, delete-orphan")
     
     created_at = Column(DateTime(timezone=True), server_default=func.now())
@@ -50,11 +50,11 @@ class Source(Base):
     
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False)
-    code = Column(String, unique=True, nullable=False)  # Уникальный код источника
+    code = Column(String, unique=True, nullable=False)  
     
-    # Веса операторов для этого источника
+    
     operator_weights = relationship("OperatorSourceWeight", back_populates="source", cascade="all, delete-orphan")
-    # Обращения из этого источника
+    
     contacts = relationship("Contact", back_populates="source")
     
     created_at = Column(DateTime(timezone=True), server_default=func.now())
@@ -67,9 +67,9 @@ class OperatorSourceWeight(Base):
     id = Column(Integer, primary_key=True, index=True)
     operator_id = Column(Integer, ForeignKey("operators.id", ondelete="CASCADE"))
     source_id = Column(Integer, ForeignKey("sources.id", ondelete="CASCADE"))
-    weight = Column(Integer, default=1)  # Вес распределения
+    weight = Column(Integer, default=1)
     
-    # Связи
+    
     operator = relationship("Operator", back_populates="source_weights")
     source = relationship("Source", back_populates="operator_weights")
     
@@ -87,15 +87,14 @@ class Contact(Base):
     operator_id = Column(Integer, ForeignKey("operators.id", ondelete="SET NULL"), nullable=True)
     message = Column(String)
     
-    # Статус обращения: new, in_progress, closed
+    
     status = Column(String, default="new")
     
-    # Время назначения оператора
+    
     assigned_at = Column(DateTime(timezone=True))
-    # Время закрытия обращения
     closed_at = Column(DateTime(timezone=True))
     
-    # Связи
+    
     lead = relationship("Lead", back_populates="contacts")
     source = relationship("Source", back_populates="contacts")
     operator = relationship("Operator", back_populates="contacts")

@@ -1,7 +1,9 @@
 import random
 from typing import List, Optional
+from datetime import datetime
 from sqlalchemy.orm import Session
-from app import models, crud
+from sqlalchemy import func, case
+from app import models
 from app.services.load_calculator import calculate_operator_load
 
 

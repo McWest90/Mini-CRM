@@ -3,7 +3,6 @@ from datetime import datetime
 from pydantic import BaseModel, EmailStr
 
 
-# Операторы
 class OperatorBase(BaseModel):
     name: str
     email: EmailStr
@@ -24,7 +23,7 @@ class OperatorUpdate(BaseModel):
 
 class Operator(OperatorBase):
     id: int
-    current_load: int = 0  # Текущая нагрузка (вычисляемое поле)
+    current_load: int = 0
     created_at: datetime
     updated_at: Optional[datetime] = None
     
@@ -32,9 +31,9 @@ class Operator(OperatorBase):
         from_attributes = True
 
 
-# Лиды
+
 class LeadBase(BaseModel):
-    external_id: str  # Уникальный идентификатор (телефон или email)
+    external_id: str
     phone: str
     email: Optional[str] = None
     first_name: Optional[str] = None
@@ -54,7 +53,7 @@ class Lead(LeadBase):
         from_attributes = True
 
 
-# Источники
+
 class SourceBase(BaseModel):
     name: str
     code: str
@@ -72,7 +71,7 @@ class Source(SourceBase):
         from_attributes = True
 
 
-# Веса операторов
+
 class OperatorWeightBase(BaseModel):
     operator_id: int
     source_id: int
@@ -96,11 +95,11 @@ class OperatorWeight(OperatorWeightBase):
         from_attributes = True
 
 
-# Обращения
+
 class ContactBase(BaseModel):
     lead_id: Optional[int] = None
-    source_code: str  # Код источника
-    external_lead_id: str  # Внешний ID лида
+    source_code: str  
+    external_lead_id: str
     phone: str
     email: Optional[str] = None
     first_name: Optional[str] = None
@@ -133,7 +132,7 @@ class ContactResponse(BaseModel):
     source: Source
 
 
-# Статистика
+
 class DistributionStats(BaseModel):
     operator_id: int
     operator_name: str
